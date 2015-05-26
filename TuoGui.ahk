@@ -29,8 +29,7 @@ IniRead, IniOrder, %IniFileName%, %IniSection%, Order, 1
 IniRead, IniOperation, %IniFileName%, %IniSection%, Operation, 1
 IniRead, IniEndgame, %IniFileName%, %IniSection%, Endgame, 1
 IniRead, IniFund, %IniFileName%, %IniSection%, Fund, 1
-IniRead, IniLog, %IniFileName%, %IniSection%, Log, 1
-Log%IniLog% := "Checked"
+IniRead, IniLog, %IniFileName%, %IniSection%, Log, 2
 
 Menu, MyMenu, Add, ownedcards.txt, MenuOwnedcards
 Menu, MyMenu, Add, customdecks.txt, MenuCustomdecks
@@ -51,20 +50,20 @@ Gui, Add, Text, r1, Operation:
 Gui, Add, Text, r1, Flags:
 Gui, Add, Text, r1, Custom Deck File:
 Gui, Add, Text, r1, Log:
+
 Gui, Add, Edit, vMyDeck ym w600 r5, %IniMyDeck%
-;Gui, Add, Edit, vMySiege w600 r1, %IniMySiege%
 Gui, Add, DDL, vMySiege1 section, %MySieges%
-GuiControl, ChooseString, MySiege1, %IniMySiege1% ;Submit
+GuiControl, ChooseString, MySiege1, %IniMySiege1%
 Gui, Add, DDL, vMySiege2 ys, %MySieges%
-GuiControl, ChooseString, MySiege2, %IniMySiege2% ;Submit
+GuiControl, ChooseString, MySiege2, %IniMySiege2%
 Gui, Add, Edit, vEnemiesDeck w600 r5 xs, %IniEnemiesDeck%
 Gui, Add, DDL, vEnemySiege1 section, %EnemySieges%
-GuiControl, ChooseString, EnemySiege1, %IniEnemySiege1% ;Submit
+GuiControl, ChooseString, EnemySiege1, %IniEnemySiege1%
 Gui, Add, DDL, vEnemySiege2 ys, %EnemySieges%
-GuiControl, ChooseString, EnemySiege2, %IniEnemySiege2% ;Submit
+GuiControl, ChooseString, EnemySiege2, %IniEnemySiege2%
 Gui, Add, Edit, vVIP w600 r1 xs, %IniVIP%
 Gui, Add, DDL, vEffect section, %BGEffects%
-GuiControl, ChooseString, Effect, %IniEffect% ;Submit
+GuiControl, ChooseString, Effect, %IniEffect%
 Gui, Add, Text, ys, Select X:
 Gui, Add, DDL, altsubmit vEffectX ys w40 Group Choose%IniEffectX%, 1|2|3
 Gui, Add, Text, ys, Endgame:
@@ -85,15 +84,14 @@ Gui, Add, Button, r1 w50 section, ...
 Gui, Add, Edit, vCustomDeckFile r1 ys w350 ReadOnly, %IniCustomDeckFile%
 Gui, Add, Button, r1 ys w50, Edit
 Gui, Add, Button, r1 ys w50, Clear
-Gui, Add, Radio, vLog r1 xs %Log1% section, Yes
-Gui, Add, Radio, r1 ys %Log2%, No
+Gui, Add, DDL, altsubmit vLog Group Choose%IniLog% xs w60 section, Yes|No
+Gui, Add, Checkbox, vx86 r1 ys x+40, x86 (32-bit)
 Gui, Add, Button, default r2 w100 x100 y+15 section, Simulate
-Gui, Add, Checkbox, vx86, x86 (32-bit)
-Gui, Add, Button, r2 w100 ys xs+200, Exit
-Gui, Show,, Tyrant Unleashed Optimize GUI (for v2.9.0)
+Gui, Add, Button, r2 w100 ys x+100, Exit
+Gui, Add, Button, r1 w50 ys+5 x+150, Reset
+Gui, Show,, Tyrant Unleashed Optimize GUI (for v2.9.1)
 return  
 
-;custom deck
 Button...:
 Gui, Submit
 FileSelectFile, SelectedFile, 3, %A_WorkingDir%\data\ , Open a Owned Card text file, Text Documents (*.txt;)
@@ -103,7 +101,6 @@ Gui, Show
 return
 
 ButtonClear:
-Gui, Submit
 GuiControl,, CustomDeckFile, 
 Gui, Show
 return
@@ -164,9 +161,33 @@ if Log = 1
 
 EndgameVal := Endgame -2
 selEndgame := (Endgame <= 1 ? "" : "endgame " EndgameVal " ")
-selFund := (Fund == "" ? "" : "fund " Fund " ")
+selFund := (Fund == "" || Fund == 0 ? "" : "fund " Fund " ")
 execString = %selTUO% "%MyDeck%" "%EnemiesDeck%" %selMode% %selOrder% %selMySiege%%selEnemySiege%%selVIP%%selEffect%%selThreads%%selEndgame%%selFund%%selSimOptions%%selOperation% %Iterations% %selCustomDeckFile% %selOutputLog%
 Run, cmd.exe /c title TUOptimizeOutput && echo %execString% && %execString% && pause
+Gui, Show
+return
+
+ButtonReset:
+GuiControl,, MyDeck, Cyrus, Medic, Revolver, Imperial APC, Medic, Imperial APC
+GuiControl, ChooseString, MySiege1, none 
+GuiControl, ChooseString, MySiege2, none 
+GuiControl,, EnemiesDeck, Mission #118
+GuiControl, ChooseString, EnemySiege1, none 
+GuiControl, ChooseString, EnemySiege2, none 
+GuiControl,, VIP, 
+GuiControl, ChooseString, Effect, none
+GuiControl, ChooseString, EffectX, 1
+GuiControl, Choose, Endgame, 1
+GuiControl,, Fund, 0
+GuiControl, Choose, Mode, 1
+GuiControl, Choose, Order, 1
+GuiControl, Choose, Operation, 1
+GuiControl,, Iterations, 1000
+GuiControl, Choose, Threads, 4
+GuiControl,, SimOptions, 
+GuiControl,, CustomDeckFile, 
+GuiControl, Choose, Log, 2
+GuiControl,, x86, 0 
 Gui, Show
 return
 
